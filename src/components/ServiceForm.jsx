@@ -32,7 +32,9 @@ const ServiceForm = () => {
 
     const fetchService = async () => {
         try {
-            const response = await axios.get(`http://localhost:5000/api/services`);
+            const response = await axios.get(`${import.meta.env.VITE_URL_BACKEND}/api/services`);
+            //const response = await axios.get(`http://localhost:5000/api/services`);
+
             // Finding the specific one since the API returns all (in a real app, use /:id endpoint)
             // My server.js has /api/services/:id for PUT/DELETE but not GET one specifically?
             // Wait, I didn't implement GET /api/services/:id in server.js! I implemented GET /api/services (all).
@@ -80,9 +82,11 @@ const ServiceForm = () => {
         setLoading(true);
         try {
             if (id) {
-                await axios.put(`http://localhost:5000/api/services/${id}`, formData);
+                await axios.put(`${import.meta.env.VITE_URL_BACKEND}/api/services/${id}`, formData);
+                //await axios.put(`http://localhost:5000/api/services/${id}`, formData);
             } else {
-                await axios.post('http://localhost:5000/api/services', formData);
+                await axios.post(`${import.meta.env.VITE_URL_BACKEND}/api/services`, formData);
+                //await axios.post('http://localhost:5000/api/services', formData);
             }
             navigate('/services');
         } catch (error) {

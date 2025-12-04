@@ -13,7 +13,8 @@ const ServiceTable = () => {
 
     const fetchServices = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/api/services');
+            const response = await axios.get(`${import.meta.env.VITE_URL_BACKEND}/api/services`);
+            //const response = await axios.get('http://localhost:5000/api/services');
             setServices(response.data);
         } catch (error) {
             console.error('Error fetching services:', error);
@@ -25,7 +26,9 @@ const ServiceTable = () => {
     const handleDelete = async (id) => {
         if (window.confirm('¿Está seguro de eliminar este registro?')) {
             try {
-                await axios.delete(`http://localhost:5000/api/services/${id}`);
+                //await axios.delete(`http://localhost:5000/api/services/${id}`);
+                await axios.delete(`${import.meta.env.VITE_URL_BACKEND}/api/services/${id}`);
+
                 setServices(services.filter(service => service._id !== id));
             } catch (error) {
                 console.error('Error deleting service:', error);
