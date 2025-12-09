@@ -1,12 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { Save, Search, FolderClosed } from 'lucide-react';
 
 
 const ServiceForm = () => {
+
     const navigate = useNavigate();
+
+    const query = new URLSearchParams(useLocation().search);
+    const modo = query.get("modo"); // "ver", "conformidad", "evidencias"
+
+    console.log('modo', modo);
+
+    const mostrarCampoConformidad = modo === "conformidad";
+    const mostrarCampoEvidencias = modo === "evidencias";
+
+
+    // -------------------------------------------------------------------------------
+    // -------------------------------------------------------------------------------
+    // -------------------------------------------------------------------------------  
+
     const { id } = useParams();
+
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
         cotizacion: '',
@@ -88,7 +104,7 @@ const ServiceForm = () => {
                 await axios.post(`${import.meta.env.VITE_URL_BACKEND}/api/services`, formData);
                 //await axios.post('http://localhost:5000/api/services', formData);
             }
-            navigate('/services');
+            navigate('/relacioncotizaciones');
         } catch (error) {
             console.error('Error saving service:', error);
             alert('Error al guardar el servicio');
@@ -99,9 +115,50 @@ const ServiceForm = () => {
 
     return (
         <div className="max-w-4xl mx-auto bg-white p-8 shadow-lg rounded-lg border border-gray-200">
-            <h2 className="text-2xl font-bold mb-6 text-gray-800 border-b pb-2">
-                {id ? 'Editar Servicio' : 'Registro de Servicio'}
-            </h2>
+
+            {/* <div className="p-6 bg-white rounded shadow"> */}
+
+            {/* <h2 className="text-xl font-bold mb-4">Editar Servicio #{cotizacionId}</h2> */}
+            {/* <h2 className="text-xl font-bold mb-4">Editar Servicio #{id}</h2> */}
+
+            {/* Campo común */}
+            {/* <div className="mb-4">
+                    <label className="block font-medium">Detalle del Servicio</label>
+                    <textarea className="w-full border p-2 rounded" />
+                </div> */}
+
+            {/* Campo solo para conformidad */}
+            {/* {mostrarCampoConformidad && (
+                    <div className="mb-4">
+                        <label className="block font-medium">Conformidad del Cliente</label>
+                        <input type="text" className="w-full border p-2 rounded" />
+                    </div>
+                )} */}
+
+            {/* Campo solo para evidencias */}
+            {/* {mostrarCampoEvidencias && (
+                    <div className="mb-4">
+                        <label className="block font-medium">Evidencias (URL o archivo)</label>
+                        <input type="file" className="w-full border p-2 rounded" />
+                    </div>
+                )} */}
+            {/* </div> */}
+
+            {/* ------------------------------------------------------------ */}
+            {/* ------------------------------------------------------------ */}
+            {/* ------------------------------------------------------------ */}
+            {modo == 'ver' && <h2 className="text-2xl font-bold mb-6 text-gray-800 border-b pb-2">
+                Ver Servicio #{id}</h2>}
+
+            {modo == 'conformidad' && <h2 className="text-2xl font-bold mb-6 text-gray-800 border-b pb-2">
+                Conformidad del Servicio #{id}</h2>}
+
+            {modo == 'evidencias' && <h2 className="text-2xl font-bold mb-6 text-gray-800 border-b pb-2">
+                Evidencias del Servicio #{id}</h2>}
+
+            {/* <h2 className="text-2xl font-bold mb-6 text-gray-800 border-b pb-2">
+                {id ? 'Editar Servicio ' + id : 'Registro de Servicio'}
+            </h2> */}
 
             <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Header Section: Cotizacion & Fecha */}
@@ -109,11 +166,12 @@ const ServiceForm = () => {
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1"># Cotización</label>
                         <input
+                            disabled
                             type="text"
                             name="cotizacion"
                             value={formData.cotizacion}
                             onChange={handleChange}
-                            className="w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                            className="w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-200 disabled:text-gray-800 disabled:cursor-not-allowed"
                             required
                         />
                     </div>
@@ -124,7 +182,8 @@ const ServiceForm = () => {
                             name="fecha"
                             value={formData.fecha}
                             onChange={handleChange}
-                            className="w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                            className="w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-200 disabled:text-gray-800 disabled:cursor-not-allowed"
+                            disabled
                         />
                     </div>
                 </div>
@@ -137,8 +196,9 @@ const ServiceForm = () => {
                         name="cliente"
                         value={formData.cliente}
                         onChange={handleChange}
-                        className="w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                        className="w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-200 disabled:text-gray-800 disabled:cursor-not-allowed"
                         required
+                        disabled
                     />
                 </div>
 
@@ -150,8 +210,9 @@ const ServiceForm = () => {
                         value={formData.detalleServicio}
                         onChange={handleChange}
                         rows="4"
-                        className="w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                        className="w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-200 disabled:text-gray-800 disabled:cursor-not-allowed"
                         required
+                        disabled
                     ></textarea>
                 </div>
 
@@ -166,6 +227,7 @@ const ServiceForm = () => {
                             onChange={handleChange}
                             className="w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-200 disabled:text-gray-800 disabled:cursor-not-allowed"
                             required
+                            disabled
                         />
                     </div>
                     <div>
@@ -177,7 +239,7 @@ const ServiceForm = () => {
                             onChange={handleChange}
                             className="w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-200 disabled:text-gray-800 disabled:cursor-not-allowed"
                             required
-                            disabled
+                            disabled={modo == 'ver'}
                         />
                     </div>
                 </div>
@@ -191,7 +253,7 @@ const ServiceForm = () => {
                         onChange={handleChange}
                         rows="3"
                         className="w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-200 disabled:text-gray-800 disabled:cursor-not-allowed"
-                        disabled
+                        disabled={modo == 'ver'}
                     ></textarea>
                 </div>
 
@@ -205,7 +267,7 @@ const ServiceForm = () => {
                         onChange={handleChange}
                         placeholder="Nombre o Firma del Cliente"
                         className="w-full p-2 border-b border-gray-400 bg-transparent focus:outline-none focus:border-indigo-500 disabled:bg-gray-200 disabled:text-gray-800 disabled:cursor-not-allowed"
-                        disabled
+                        disabled={modo == 'ver'}
                     />
                     <p className="text-xs text-gray-500 mt-1 text-right">Firma</p>
                 </div>
@@ -222,7 +284,7 @@ const ServiceForm = () => {
                                     checked={formData.evidencia[`casilla${num}`]}
                                     onChange={handleChange}
                                     className="h-5 w-5 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded disabled:bg-gray-200 disabled:text-gray-800 disabled:cursor-not-allowed"
-                                    disabled
+                                    disabled={modo == 'ver'}
                                 />
                                 <span className="text-sm text-gray-600">Casilla {num}</span>
                             </label>
@@ -235,7 +297,8 @@ const ServiceForm = () => {
                 <div className="flex justify-end gap-4 pt-4 border-t">
                     <button
                         type="button"
-                        onClick={() => navigate('/services')}
+                        // onClick={() => navigate('/compliance')}
+                        onClick={() => navigate('/relacioncotizaciones')}
                         className="px-6 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex items-center"
                     >
                         <FolderClosed className="w-4 h-4 mr-2" />

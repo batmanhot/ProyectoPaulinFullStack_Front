@@ -88,7 +88,7 @@ const ServiceForm = () => {
                 await axios.post(`${import.meta.env.VITE_URL_BACKEND}/api/services`, formData);
                 //await axios.post('http://localhost:5000/api/services', formData);
             }
-            navigate('/services');
+            navigate('/compliance');
         } catch (error) {
             console.error('Error saving service:', error);
             alert('Error al guardar el servicio');
@@ -98,6 +98,7 @@ const ServiceForm = () => {
     };
 
     return (
+
         <div className="max-w-4xl mx-auto bg-white p-8 shadow-lg rounded-lg border border-gray-200">
             <h2 className="text-2xl font-bold mb-6 text-gray-800 border-b pb-2">
                 {id ? 'Editar Servicio' : 'Registro de Servicio'}
@@ -109,11 +110,12 @@ const ServiceForm = () => {
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1"># Cotización</label>
                         <input
+                            disabled
                             type="text"
                             name="cotizacion"
                             value={formData.cotizacion}
                             onChange={handleChange}
-                            className="w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                            className="w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 *: disabled:bg-gray-200 disabled:text-gray-800 disabled:cursor-not-allowed"
                             required
                         />
                     </div>
@@ -124,7 +126,8 @@ const ServiceForm = () => {
                             name="fecha"
                             value={formData.fecha}
                             onChange={handleChange}
-                            className="w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                            className="w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-200 disabled:text-gray-800 disabled:cursor-not-allowed"
+                            disabled
                         />
                     </div>
                 </div>
@@ -137,8 +140,9 @@ const ServiceForm = () => {
                         name="cliente"
                         value={formData.cliente}
                         onChange={handleChange}
-                        className="w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                        className="w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-200 disabled:text-gray-800 disabled:cursor-not-allowed"
                         required
+                        disabled
                     />
                 </div>
 
@@ -150,8 +154,9 @@ const ServiceForm = () => {
                         value={formData.detalleServicio}
                         onChange={handleChange}
                         rows="4"
-                        className="w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                        className="w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-200 disabled:text-gray-800 disabled:cursor-not-allowed"
                         required
+                        disabled
                     ></textarea>
                 </div>
 
@@ -166,6 +171,7 @@ const ServiceForm = () => {
                             onChange={handleChange}
                             className="w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-200 disabled:text-gray-800 disabled:cursor-not-allowed"
                             required
+                            disabled
                         />
                     </div>
                     <div>
@@ -175,9 +181,8 @@ const ServiceForm = () => {
                             name="fechaServicio"
                             value={formData.fechaServicio}
                             onChange={handleChange}
-                            className="w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-200 disabled:text-gray-800 disabled:cursor-not-allowed"
+                            className="w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
                             required
-                            disabled
                         />
                     </div>
                 </div>
@@ -190,8 +195,7 @@ const ServiceForm = () => {
                         value={formData.observacion}
                         onChange={handleChange}
                         rows="3"
-                        className="w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-200 disabled:text-gray-800 disabled:cursor-not-allowed"
-                        disabled
+                        className="w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
                     ></textarea>
                 </div>
 
@@ -204,8 +208,7 @@ const ServiceForm = () => {
                         value={formData.conformidadCliente}
                         onChange={handleChange}
                         placeholder="Nombre o Firma del Cliente"
-                        className="w-full p-2 border-b border-gray-400 bg-transparent focus:outline-none focus:border-indigo-500 disabled:bg-gray-200 disabled:text-gray-800 disabled:cursor-not-allowed"
-                        disabled
+                        className="w-full p-2 border-b border-gray-400 bg-transparent focus:outline-none focus:border-indigo-500"
                     />
                     <p className="text-xs text-gray-500 mt-1 text-right">Firma</p>
                 </div>
@@ -221,8 +224,7 @@ const ServiceForm = () => {
                                     name={`evidencia.casilla${num}`}
                                     checked={formData.evidencia[`casilla${num}`]}
                                     onChange={handleChange}
-                                    className="h-5 w-5 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded disabled:bg-gray-200 disabled:text-gray-800 disabled:cursor-not-allowed"
-                                    disabled
+                                    className="h-5 w-5 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
                                 />
                                 <span className="text-sm text-gray-600">Casilla {num}</span>
                             </label>
@@ -235,7 +237,7 @@ const ServiceForm = () => {
                 <div className="flex justify-end gap-4 pt-4 border-t">
                     <button
                         type="button"
-                        onClick={() => navigate('/services')}
+                        onClick={() => navigate('/compliance')}
                         className="px-6 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex items-center"
                     >
                         <FolderClosed className="w-4 h-4 mr-2" />

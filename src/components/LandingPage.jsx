@@ -29,11 +29,19 @@ const LandingPage = () => {
                         <div className="mt-10 flex items-center justify-center gap-x-6">
                             <Link
                                 to="/services"
-                                className="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 flex items-center"
+                                className="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 flex items-center"
                             >
-                                Ingresar al Sistema <ArrowRight className="ml-2 w-4 h-4" />
+                                Solicitud de Servicios <ArrowRight className="ml-2 w-4 h-4" />
+                            </Link>
+                            <Link
+                                // to="/compliance"
+                                to="/relacioncotizaciones"
+                                className="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 flex items-center"
+                            >
+                                Conformidades de Atención <ArrowRight className="ml-2 w-4 h-4" />
                             </Link>
                         </div>
+
                     </div>
                 </div>
             </div>
