@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import axios from 'axios';
-import { Save, Search, FolderClosed, Eye } from 'lucide-react';
+import { Save, Search, FolderClosed, Eye, Trash2 } from 'lucide-react';
+import SignatureCanvas from 'react-signature-canvas';
 
 
 const ServiceForm = () => {
@@ -25,6 +26,7 @@ const ServiceForm = () => {
 
     const [loading, setLoading] = useState(false);
     const [servicioCerradoOriginal, setServicioCerradoOriginal] = useState(false); // Valor original de la BD
+    const signatureRef = useRef(null); // Ref para el canvas de firma
     const [newFiles, setNewFiles] = useState({
         archivos1: null,
         archivos2: null,
@@ -39,6 +41,7 @@ const ServiceForm = () => {
         fechaServicio: '',
         observacion: '',
         conformidadCliente: '',
+        firmaCliente: '', // URL o base64 de la firma del cliente
         servicioCerrado: false, // Nuevo campo para indicar si el servicio está cerrado
         evidencia: {
             casilla1: false,
@@ -121,6 +124,12 @@ const ServiceForm = () => {
                 data.append('fechaServicio', formData.fechaServicio);
                 data.append('observacion', formData.observacion || '');
                 data.append('servicioCerrado', formData.servicioCerrado);
+
+                // Agregar la firma si existe
+                if (formData.firmaCliente) {
+                    data.append('firmaCliente', formData.firmaCliente);
+                    console.log('Firma del cliente agregada');
+                }
 
                 console.log('Enviando a:', `${import.meta.env.VITE_URL_BACKEND}/api/editar-servicio/${id}?modo=${modo}`);
 
@@ -236,6 +245,31 @@ const ServiceForm = () => {
             window.open(fileUrl, '_blank');
         } else {
             console.error('❌ No hay nombre de archivo');
+        }
+    };
+
+    // Función para guardar la firma
+    const handleSaveSignature = () => {
+        if (signatureRef.current && !signatureRef.current.isEmpty()) {
+            const signatureDataURL = signatureRef.current.toDataURL('image/png');
+            setFormData(prev => ({
+                ...prev,
+                firmaCliente: signatureDataURL
+            }));
+            alert('✅ Firma guardada correctamente');
+        } else {
+            alert('⚠️ Por favor, dibuje su firma primero');
+        }
+    };
+
+    // Función para limpiar la firma
+    const handleClearSignature = () => {
+        if (signatureRef.current) {
+            signatureRef.current.clear();
+            setFormData(prev => ({
+                ...prev,
+                firmaCliente: ''
+            }));
         }
     };
 
@@ -397,20 +431,74 @@ const ServiceForm = () => {
                     </div>
                 )}
 
-                {/* Conformidad Cliente - No mostrar en modo Ver */}
-                {modo !== 'ver' && (
+                {/* Conformidad Cliente - Solo mostrar en modo Conformidad */}
+                {modo === 'conformidad' && (
                     <div className="border border-gray-300 rounded-md p-4 bg-gray-50">
                         <label className="block text-sm font-medium text-gray-700 mb-2">Conformidad Cliente (Firma)</label>
+
+                        {/* Input para nombre del cliente */}
                         <input
                             type="text"
                             name="conformidadCliente"
                             value={formData.conformidadCliente}
                             onChange={handleChange}
-                            placeholder="Nombre o Firma del Cliente"
-                            className="w-full p-2 border-b border-gray-400 bg-transparent focus:outline-none focus:border-indigo-500 disabled:bg-gray-200 disabled:text-gray-800 disabled:cursor-not-allowed"
-                            disabled={modo === 'evidencias' || servicioCerradoOriginal}
+                            placeholder="Nombre del Cliente"
+                            className="w-full p-2 mb-3 border border-gray-300 rounded-md focus:outline-none focus:border-indigo-500 disabled:bg-gray-200 disabled:text-gray-800 disabled:cursor-not-allowed"
+                            disabled={servicioCerradoOriginal}
                         />
-                        <p className="text-xs text-gray-500 mt-1 text-right">Firma</p>
+
+                        {/* Canvas de firma - Solo en modo conformidad */}
+                        {!servicioCerradoOriginal && (
+                            <div className="mt-3">
+                                <label className="block text-xs font-medium text-gray-600 mb-2">
+                                    ✍️ Dibuje su firma aquí:
+                                </label>
+                                <div className="border-2 border-indigo-300 rounded-md bg-white">
+                                    <SignatureCanvas
+                                        ref={signatureRef}
+                                        canvasProps={{
+                                            className: 'w-full h-40 cursor-crosshair',
+                                            style: { touchAction: 'none' }
+                                        }}
+                                        backgroundColor="white"
+                                    />
+                                </div>
+                                <div className="flex gap-2 mt-2">
+                                    <button
+                                        type="button"
+                                        onClick={handleSaveSignature}
+                                        className="flex-1 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors flex items-center justify-center gap-2 text-sm font-medium"
+                                    >
+                                        <Save className="w-4 h-4" />
+                                        Guardar Firma
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={handleClearSignature}
+                                        className="flex-1 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors flex items-center justify-center gap-2 text-sm font-medium"
+                                    >
+                                        <Trash2 className="w-4 h-4" />
+                                        Limpiar
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Mostrar firma guardada */}
+                        {formData.firmaCliente && (
+                            <div className="mt-3 p-3 bg-indigo-50 border border-indigo-200 rounded-md">
+                                <p className="text-xs font-semibold text-indigo-700 mb-2">Firma guardada:</p>
+                                <div className="bg-white border border-indigo-300 rounded-md p-2">
+                                    <img
+                                        src={formData.firmaCliente}
+                                        alt="Firma del cliente"
+                                        className="w-full h-32 object-contain"
+                                    />
+                                </div>
+                            </div>
+                        )}
+
+                        <p className="text-xs text-gray-500 mt-2">Firma digital del cliente</p>
                     </div>
                 )}
 
@@ -565,6 +653,27 @@ const ServiceForm = () => {
                         {!formData.evidencia.casilla1 && !formData.evidencia.casilla2 && !formData.evidencia.casilla3 && (
                             <div className="text-center py-8 text-gray-500">
                                 <p className="text-sm">No hay evidencias cargadas para este servicio.</p>
+                            </div>
+                        )}
+
+                        {/* Mostrar firma del cliente en modo evidencias */}
+                        {formData.firmaCliente && (
+                            <div className="mt-6">
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Firma del Cliente</label>
+                                <div className="border border-green-200 rounded-md overflow-hidden shadow-sm bg-green-50">
+                                    <div className="bg-green-100 px-3 py-2 border-b border-green-200">
+                                        <p className="text-xs font-semibold text-green-700">
+                                            ✍️ {formData.conformidadCliente || 'Cliente'}
+                                        </p>
+                                    </div>
+                                    <div className="p-4 bg-white">
+                                        <img
+                                            src={formData.firmaCliente}
+                                            alt="Firma del cliente"
+                                            className="w-full max-w-md mx-auto h-32 object-contain border border-gray-300 rounded"
+                                        />
+                                    </div>
+                                </div>
                             </div>
                         )}
                     </div>

@@ -17,11 +17,11 @@ const Layout = ({ children }) => {
                             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
                                 <Link to="/services" className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                                     <List className="w-4 h-4 mr-2" />
-                                    Listado
+                                    Listado de Servicios
                                 </Link>
                                 <Link to="/create" className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                                     <PlusCircle className="w-4 h-4 mr-2" />
-                                    Nuevo Servicio
+                                    Registrar Nuevo Servicio
                                 </Link>
                             </div>
                         </div>
