@@ -24,6 +24,7 @@ const ServiceForm = () => {
     const { id } = useParams();
 
     const [loading, setLoading] = useState(false);
+    const [servicioCerradoOriginal, setServicioCerradoOriginal] = useState(false); // Valor original de la BD
     const [newFiles, setNewFiles] = useState({
         archivos1: null,
         archivos2: null,
@@ -38,6 +39,7 @@ const ServiceForm = () => {
         fechaServicio: '',
         observacion: '',
         conformidadCliente: '',
+        servicioCerrado: false, // Nuevo campo para indicar si el servicio está cerrado
         evidencia: {
             casilla1: false,
             casilla2: false,
@@ -68,6 +70,8 @@ const ServiceForm = () => {
                     fecha: found.fecha ? found.fecha.split('T')[0] : '',
                     fechaServicio: found.fechaServicio ? found.fechaServicio.split('T')[0] : '',
                 });
+                // Guardar el valor original de servicioCerrado
+                setServicioCerradoOriginal(found.servicioCerrado || false);
             }
         } catch (error) {
             console.error('Error fetching service:', error);
@@ -84,17 +88,17 @@ const ServiceForm = () => {
         console.log('📋 ID:', id);
         console.log('📋 Modo:', modo);
         console.log('📋 newFiles:', newFiles);
-        console.log('📋 formData.evidencia:', formData.evidencia);
+        console.log('📋 formData:', formData);
 
         try {
             // Verificar si hay archivos nuevos para subir
             const hasNewFiles = newFiles.archivos1 || newFiles.archivos2 || newFiles.archivos3;
             console.log('📋 hasNewFiles:', hasNewFiles);
-            console.log('📋 Condición completa:', id && hasNewFiles && modo === 'evidencias');
+            console.log('📋 Condición completa:', id && hasNewFiles && modo === 'conformidad');
 
-            if (id && hasNewFiles && modo === 'evidencias') {
-                // Si hay archivos nuevos en modo evidencias, usar FormData
-                console.log('✅ Entrando a la rama de archivos...');
+            // MODO CONFORMIDAD - Ahora aquí se guardan las imágenes
+            if (id && modo === 'conformidad') {
+                console.log('✅ Entrando a modo conformidad...');
 
                 const data = new FormData();
 
@@ -113,10 +117,10 @@ const ServiceForm = () => {
                 }
 
                 // Agregar otros campos del formulario
-                data.append('detalleServicio', formData.detalleServicio);
+                data.append('conformidadCliente', formData.conformidadCliente || '');
                 data.append('fechaServicio', formData.fechaServicio);
                 data.append('observacion', formData.observacion || '');
-                data.append('conformidadCliente', formData.conformidadCliente || '');
+                data.append('servicioCerrado', formData.servicioCerrado);
 
                 console.log('Enviando a:', `${import.meta.env.VITE_URL_BACKEND}/api/editar-servicio/${id}?modo=${modo}`);
 
@@ -142,7 +146,7 @@ const ServiceForm = () => {
                 // Recargar los datos del servidor para obtener los nombres de archivo correctos
                 await fetchService();
 
-                alert('✅ Archivos guardados correctamente');
+                alert('✅ Datos guardados correctamente');
 
             } else if (id) {
                 // Si no hay archivos nuevos, usar la ruta normal
@@ -175,6 +179,11 @@ const ServiceForm = () => {
                     ...prev.evidencia,
                     [evidenceField]: checked
                 }
+            }));
+        } else if (type === 'checkbox') {
+            setFormData(prev => ({
+                ...prev,
+                [name]: checked
             }));
         } else {
             setFormData(prev => ({
@@ -356,128 +365,210 @@ const ServiceForm = () => {
                             disabled
                         />
                     </div>
+                    {/* Fecha Servicio - No mostrar en modo Ver */}
+                    {modo !== 'ver' && (
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Fecha Servicio</label>
+                            <input
+                                type="date"
+                                name="fechaServicio"
+                                value={formData.fechaServicio}
+                                onChange={handleChange}
+                                className="w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-200 disabled:text-gray-800 disabled:cursor-not-allowed"
+                                required
+                                disabled={modo === 'evidencias' || servicioCerradoOriginal}
+                            />
+                        </div>
+                    )}
+                </div>
+
+                {/* Observación - No mostrar en modo Ver */}
+                {modo !== 'ver' && (
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Fecha Servicio</label>
-                        <input
-                            type="date"
-                            name="fechaServicio"
-                            value={formData.fechaServicio}
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Observación</label>
+                        <textarea
+                            name="observacion"
+                            value={formData.observacion}
                             onChange={handleChange}
+                            rows="3"
                             className="w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-200 disabled:text-gray-800 disabled:cursor-not-allowed"
-                            required
-                            disabled={modo == 'ver'}
-                        />
+                            disabled={modo === 'evidencias' || servicioCerradoOriginal}
+                        ></textarea>
                     </div>
-                </div>
+                )}
 
-                {/* Observación */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Observación</label>
-                    <textarea
-                        name="observacion"
-                        value={formData.observacion}
-                        onChange={handleChange}
-                        rows="3"
-                        className="w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-200 disabled:text-gray-800 disabled:cursor-not-allowed"
-                        disabled={modo == 'ver'}
-                    ></textarea>
-                </div>
+                {/* Conformidad Cliente - No mostrar en modo Ver */}
+                {modo !== 'ver' && (
+                    <div className="border border-gray-300 rounded-md p-4 bg-gray-50">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Conformidad Cliente (Firma)</label>
+                        <input
+                            type="text"
+                            name="conformidadCliente"
+                            value={formData.conformidadCliente}
+                            onChange={handleChange}
+                            placeholder="Nombre o Firma del Cliente"
+                            className="w-full p-2 border-b border-gray-400 bg-transparent focus:outline-none focus:border-indigo-500 disabled:bg-gray-200 disabled:text-gray-800 disabled:cursor-not-allowed"
+                            disabled={modo === 'evidencias' || servicioCerradoOriginal}
+                        />
+                        <p className="text-xs text-gray-500 mt-1 text-right">Firma</p>
+                    </div>
+                )}
 
-                {/* Conformidad Cliente */}
-                <div className="border border-gray-300 rounded-md p-4 bg-gray-50">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Conformidad Cliente (Firma)</label>
-                    <input
-                        type="text"
-                        name="conformidadCliente"
-                        value={formData.conformidadCliente}
-                        onChange={handleChange}
-                        placeholder="Nombre o Firma del Cliente"
-                        className="w-full p-2 border-b border-gray-400 bg-transparent focus:outline-none focus:border-indigo-500 disabled:bg-gray-200 disabled:text-gray-800 disabled:cursor-not-allowed"
-                        disabled={modo == 'ver'}
-                    />
-                    <p className="text-xs text-gray-500 mt-1 text-right">Firma</p>
-                </div>
+                {/* Checkbox Servicio Cerrado - Solo en modo conformidad */}
+                {modo === 'conformidad' && (
+                    <div className="border border-amber-300 rounded-md p-4 bg-amber-50">
+                        <label className="flex items-center space-x-3 cursor-pointer">
+                            <input
+                                type="checkbox"
+                                name="servicioCerrado"
+                                checked={formData.servicioCerrado}
+                                onChange={handleChange}
+                                disabled={servicioCerradoOriginal}
+                                className="h-5 w-5 text-amber-600 border-gray-300 rounded focus:ring-amber-500 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                            />
+                            <span className="text-sm font-medium text-gray-700">
+                                🔒 Marcar este servicio como cerrado (no se podrá modificar después)
+                            </span>
+                        </label>
+                        {formData.servicioCerrado && !servicioCerradoOriginal && (
+                            <p className="text-xs text-amber-700 mt-2 ml-8">
+                                ⚠️ Este servicio está cerrado. Haz clic en "Registrar" para guardar este cambio. Después no se permitirán más modificaciones.
+                            </p>
+                        )}
+                        {servicioCerradoOriginal && (
+                            <p className="text-xs text-red-700 mt-2 ml-8 font-semibold">
+                                🔒 Este servicio ya está cerrado permanentemente. No se pueden realizar modificaciones.
+                            </p>
+                        )}
+                    </div>
+                )}
 
-                {/* Evidencia */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Evidencias</label>
+                {/* Evidencias - Carga de imágenes en CONFORMIDAD */}
+                {modo === 'conformidad' && (
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Evidencias (Imágenes)</label>
 
-                    <div className="flex flex-col gap-4">
+                        <div className="flex flex-col gap-4">
 
-                        {[1, 2, 3].map((num) => (
-                            <div key={num} className="border p-3 rounded-md">
+                            {[1, 2, 3].map((num) => (
+                                <div key={num} className="border p-3 rounded-md">
 
-                                {/* Checkbox */}
-                                <label className="flex items-center space-x-2 cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        name={`evidencia.casilla${num}`}
-                                        checked={formData.evidencia[`casilla${num}`]}
-                                        onChange={handleChange}
-                                        disabled={modo === "ver"}
-                                        className="h-5 w-5 text-indigo-600 border-gray-300 rounded disabled:bg-gray-200 disabled:cursor-not-allowed"
-                                    />
-                                    <span className="text-sm text-gray-600">Casilla {num}</span>
-                                </label>
-
-                                {/* Input de archivo */}
-                                {formData.evidencia[`casilla${num}`] && (
-                                    <div className="mt-3">
+                                    {/* Checkbox */}
+                                    <label className="flex items-center space-x-2 cursor-pointer">
                                         <input
-                                            type="file"
-                                            name={`evidencia.archivos${num}`}
-                                            onChange={handleChangeFile}
-                                            accept="image/*"
-                                            disabled={modo === "ver"}
-                                            //style={{ display: "none" }}
-                                            className="block w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 
-                                            file:rounded-md file:border-0 file:text-sm file:font-semibold 
-                                            file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 
-                                            disabled:bg-gray-200 disabled:cursor-not-allowed"
+                                            type="checkbox"
+                                            name={`evidencia.casilla${num}`}
+                                            checked={formData.evidencia[`casilla${num}`]}
+                                            onChange={handleChange}
+                                            disabled={servicioCerradoOriginal}
+                                            className="h-5 w-5 text-indigo-600 border-gray-300 rounded disabled:bg-gray-200 disabled:cursor-not-allowed"
                                         />
+                                        <span className="text-sm text-gray-600">Evidencia {num}</span>
+                                    </label>
 
-                                        {/* Mostrar archivo guardado previamente */}
-                                        {formData.evidencia[`archivos${num}`] && (
-                                            <div className="mt-2 p-3 bg-gradient-to-r from-indigo-50 to-blue-50 border border-indigo-200 rounded-md flex items-center justify-between">
-                                                <div className="flex-1">
-                                                    <p className="text-xs text-gray-600">
-                                                        <span className="font-semibold">Archivo guardado: </span>
-                                                        <span className="text-indigo-600 font-bold">{formData.evidencia[`archivos${num}`]}</span>
+                                    {/* Input de archivo */}
+                                    {formData.evidencia[`casilla${num}`] && (
+                                        <div className="mt-3">
+                                            <input
+                                                type="file"
+                                                name={`evidencia.archivos${num}`}
+                                                onChange={handleChangeFile}
+                                                accept="image/*"
+                                                disabled={servicioCerradoOriginal}
+                                                className="block w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 
+                                                file:rounded-md file:border-0 file:text-sm file:font-semibold 
+                                                file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 
+                                                disabled:bg-gray-200 disabled:cursor-not-allowed"
+                                            />
+
+                                            {/* Mostrar archivo guardado previamente */}
+                                            {formData.evidencia[`archivos${num}`] && (
+                                                <div className="mt-2 p-3 bg-linear-to-r from-indigo-50 to-blue-50 border border-indigo-200 rounded-md flex items-center justify-between">
+                                                    <div className="flex-1">
+                                                        <p className="text-xs text-gray-600">
+                                                            <span className="font-semibold">Archivo guardado: </span>
+                                                            <span className="text-indigo-600 font-bold">{formData.evidencia[`archivos${num}`]}</span>
+                                                        </p>
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleViewFile(formData.evidencia[`archivos${num}`])}
+                                                        className="ml-3 px-3 py-1.5 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors flex items-center gap-1.5 text-xs font-medium shadow-sm"
+                                                        title="Ver archivo"
+                                                    >
+                                                        <Eye className="w-3.5 h-3.5" />
+                                                        Ver
+                                                    </button>
+                                                </div>
+                                            )}
+
+                                            {/* Mostrar archivo nuevo seleccionado (aún no guardado) */}
+                                            {newFiles[`archivos${num}`] && (
+                                                <div className="mt-2 p-3 bg-green-50 border border-green-300 rounded-md">
+                                                    <p className="text-xs text-green-700">
+                                                        <span className="font-semibold">✓ Nuevo archivo seleccionado: </span>
+                                                        <span className="font-bold">{newFiles[`archivos${num}`].name}</span>
+                                                        <span className="block mt-1 text-green-600">Haz clic en "Registrar" para guardar este archivo</span>
                                                     </p>
                                                 </div>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => handleViewFile(formData.evidencia[`archivos${num}`])}
-                                                    className="ml-3 px-3 py-1.5 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors flex items-center gap-1.5 text-xs font-medium shadow-sm"
-                                                    title="Ver archivo"
-                                                >
-                                                    <Eye className="w-3.5 h-3.5" />
-                                                    Ver
-                                                </button>
-                                            </div>
-                                        )}
+                                            )}
+                                        </div>
+                                    )}
 
-                                        {/* Mostrar archivo nuevo seleccionado (aún no guardado) */}
-                                        {newFiles[`archivos${num}`] && (
-                                            <div className="mt-2 p-3 bg-green-50 border border-green-300 rounded-md">
-                                                <p className="text-xs text-green-700">
-                                                    <span className="font-semibold">✓ Nuevo archivo seleccionado: </span>
-                                                    <span className="font-bold">{newFiles[`archivos${num}`].name}</span>
-                                                    <span className="block mt-1 text-green-600">Haz clic en "Registrar" para guardar este archivo</span>
-                                                </p>
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
+                                </div>
+                            ))}
+                        </div>
 
-                            </div>
-                        ))}
+                        <p className="text-xs text-gray-500 mt-1">
+                            Puedes cargar hasta 3 imágenes. Marca la casilla para habilitar la carga.
+                        </p>
                     </div>
+                )}
 
-                    <p className="text-xs text-gray-500 mt-1">
-                        Puedes cargar hasta 3 imágenes. Marca la casilla para habilitar la carga.
-                    </p>
-                </div>
+                {/* Evidencias - Solo visualización en modo EVIDENCIAS */}
+                {modo === 'evidencias' && (
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Evidencias (Solo lectura)</label>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            {[1, 2, 3].map((num) => (
+                                formData.evidencia[`casilla${num}`] && formData.evidencia[`archivos${num}`] && (
+                                    <div key={num} className="border border-indigo-200 rounded-md overflow-hidden shadow-sm">
+                                        <div className="bg-indigo-50 px-3 py-2 border-b border-indigo-200">
+                                            <p className="text-xs font-semibold text-indigo-700">Evidencia {num}</p>
+                                        </div>
+                                        <div className="p-2">
+                                            <img
+                                                src={`${import.meta.env.VITE_URL_BACKEND}/uploads/evidencias/${formData.evidencia[`archivos${num}`]}`}
+                                                alt={`Evidencia ${num}`}
+                                                className="w-full h-48 object-cover rounded cursor-pointer hover:opacity-90 transition-opacity"
+                                                onClick={() => handleViewFile(formData.evidencia[`archivos${num}`])}
+                                                onError={(e) => {
+                                                    e.target.onerror = null;
+                                                    e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200"%3E%3Crect fill="%23ddd" width="200" height="200"/%3E%3Ctext fill="%23999" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3EImagen no disponible%3C/text%3E%3C/svg%3E';
+                                                }}
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => handleViewFile(formData.evidencia[`archivos${num}`])}
+                                                className="mt-2 w-full px-3 py-1.5 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors flex items-center justify-center gap-1.5 text-xs font-medium"
+                                            >
+                                                <Eye className="w-3.5 h-3.5" />
+                                                Ver en tamaño completo
+                                            </button>
+                                        </div>
+                                    </div>
+                                )
+                            ))}
+                        </div>
+
+                        {!formData.evidencia.casilla1 && !formData.evidencia.casilla2 && !formData.evidencia.casilla3 && (
+                            <div className="text-center py-8 text-gray-500">
+                                <p className="text-sm">No hay evidencias cargadas para este servicio.</p>
+                            </div>
+                        )}
+                    </div>
+                )}
 
 
 
@@ -486,22 +577,25 @@ const ServiceForm = () => {
                 <div className="flex justify-end gap-4 pt-4 border-t">
                     <button
                         type="button"
-                        // onClick={() => navigate('/compliance')}
                         onClick={() => navigate('/relacioncotizaciones')}
                         className="px-6 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex items-center"
                     >
                         <FolderClosed className="w-4 h-4 mr-2" />
                         Cerrar
                     </button>
-                    <button
-                        type="submit"
-                        //onClick={enviarFormulario}
-                        disabled={loading}
-                        className="px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex items-center"
-                    >
-                        <Save className="w-4 h-4 mr-2" />
-                        {loading ? 'Guardando...' : 'Registrar'}
-                    </button>
+
+                    {/* Solo mostrar botón Registrar si NO está en modo ver ni evidencias */}
+                    {modo !== 'evidencias' && modo !== 'ver' && (
+                        <button
+                            type="submit"
+                            disabled={loading || servicioCerradoOriginal}
+                            className="px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex items-center disabled:bg-gray-400 disabled:cursor-not-allowed"
+                            title={servicioCerradoOriginal ? "Este servicio está cerrado y no se puede modificar" : ""}
+                        >
+                            <Save className="w-4 h-4 mr-2" />
+                            {loading ? 'Guardando...' : servicioCerradoOriginal ? 'Servicio Cerrado' : 'Registrar'}
+                        </button>
+                    )}
                 </div>
             </form>
         </div>
