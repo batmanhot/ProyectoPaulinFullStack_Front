@@ -177,7 +177,7 @@ const ServiceForm = () => {
                             onChange={handleChange}
                             className="w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-200 disabled:text-gray-800 disabled:cursor-not-allowed"
                             required
-                            disabled
+                        // disabled
                         />
                     </div>
                 </div>
@@ -191,7 +191,7 @@ const ServiceForm = () => {
                         onChange={handleChange}
                         rows="3"
                         className="w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-200 disabled:text-gray-800 disabled:cursor-not-allowed"
-                        disabled
+                    // disabled
                     ></textarea>
                 </div>
 
@@ -205,7 +205,7 @@ const ServiceForm = () => {
                         onChange={handleChange}
                         placeholder="Nombre o Firma del Cliente"
                         className="w-full p-2 border-b border-gray-400 bg-transparent focus:outline-none focus:border-indigo-500 disabled:bg-gray-200 disabled:text-gray-800 disabled:cursor-not-allowed"
-                        disabled
+                    // disabled
                     />
                     <p className="text-xs text-gray-500 mt-1 text-right">Firma</p>
                 </div>
@@ -222,7 +222,7 @@ const ServiceForm = () => {
                                     checked={formData.evidencia[`casilla${num}`]}
                                     onChange={handleChange}
                                     className="h-5 w-5 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded disabled:bg-gray-200 disabled:text-gray-800 disabled:cursor-not-allowed"
-                                    disabled
+                                // disabled
                                 />
                                 <span className="text-sm text-gray-600">Casilla {num}</span>
                             </label>
