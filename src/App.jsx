@@ -9,13 +9,16 @@ import ServiceTable from './components/ServiceTable';
 import ComplianceTableD from './components/ComplianceTable-D';
 import ComplianceFormD from './components/ComplianceForm-D';
 
+import Dashboard from './components/Dashboard';
+import About from './components/About';
 
 function App() {
   return (
     <Router>
       <Layout>
         <Routes>
-          <Route path="/" element={<LandingPage />} />
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/about" element={<About />} />
           <Route path="/services" element={<ServiceTable />} />
           <Route path="/create" element={<ServiceForm />} />
           <Route path="/edit/:id" element={<ServiceForm />} />
