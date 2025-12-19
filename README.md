@@ -2,8 +2,6 @@
 
 **USUARIO PAOLIN LIN**
 
-
 ### PROYECTO PAULIN FULLSTACK FRONT END
 
-## Expanding the ESLint configuration
 
