@@ -43,17 +43,12 @@ const ServiceTable = () => {
 
     return (
         <div className="bg-white shadow-md rounded-lg overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
-                <h2 className="text-xl font-semibold text-gray-800">Listado de solicitud de servicios</h2>
-                {/* <Link
-                    to="/create"
-                    className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Nuevo Registro
-                </Link> */}
+            <div className="px-4 md:px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+                <h2 className="text-lg md:text-xl font-semibold text-gray-800">Listado de solicitud de servicios</h2>
             </div>
-            <div className="overflow-x-auto">
+
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                         <tr>
@@ -117,20 +112,71 @@ const ServiceTable = () => {
                                         >
                                             <Edit className="w-4 h-4 mr-1" /> Evidencias
                                         </Link>
-
-
-                                        {/* <button
-                                            onClick={() => handleDelete(service._id)}
-                                            className="text-red-600 hover:text-red-900 inline-flex items-center"
-                                        >
-                                            <Trash2 className="w-4 h-4 mr-1" /> Eliminar
-                                        </button> */}
                                     </td>
                                 </tr>
                             ))
                         )}
                     </tbody>
                 </table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="md:hidden">
+                {services.length === 0 ? (
+                    <div className="px-4 py-8 text-center text-sm text-gray-500">
+                        No hay registros encontrados.
+                    </div>
+                ) : (
+                    <div className="divide-y divide-gray-200">
+                        {services.map((service) => (
+                            <div key={service._id} className="px-4 py-3 hover:bg-gray-50">
+                                {/* Compact Card Layout */}
+                                <div className="flex justify-between items-start mb-2">
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <span className="text-xs font-medium text-gray-500">COT:</span>
+                                            <span className="text-sm font-semibold text-gray-900 truncate">
+                                                {service.cotizacion}
+                                            </span>
+                                        </div>
+                                        <div className="text-sm text-gray-700 truncate mb-1">
+                                            {service.cliente}
+                                        </div>
+                                        <div className="flex items-center gap-3 text-xs text-gray-500">
+                                            <span className="truncate">👤 {service.tecnico}</span>
+                                            <span>📅 {new Date(service.fechaServicio).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' })}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Actions - Compact */}
+                                <div className="flex flex-col gap-2 mt-2">
+                                    <Link
+                                        to={`/compliance/${service._id}`}
+                                        className="inline-flex items-center justify-center px-3 py-1.5 border border-indigo-600 rounded-md text-xs font-medium text-indigo-600 bg-white hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                    >
+                                        <Edit className="w-3 h-3 mr-1" />
+                                        Ver Detalles
+                                    </Link>
+                                    <Link
+                                        to={`/compliance/${service._id}`}
+                                        className="inline-flex items-center justify-center px-3 py-1.5 border border-green-600 rounded-md text-xs font-medium text-green-600 bg-white hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                                    >
+                                        <Edit className="w-3 h-3 mr-1" />
+                                        Conformidad
+                                    </Link>
+                                    <Link
+                                        to={`/compliance/${service._id}`}
+                                        className="inline-flex items-center justify-center px-3 py-1.5 border border-blue-600 rounded-md text-xs font-medium text-blue-600 bg-white hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                                    >
+                                        <Edit className="w-3 h-3 mr-1" />
+                                        Evidencias
+                                    </Link>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
         </div>
     );
